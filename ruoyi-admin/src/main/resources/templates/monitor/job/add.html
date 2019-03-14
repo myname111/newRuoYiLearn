@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-job-add">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">任务名称：</label>
+				<div class="col-sm-8">
+					<input id="jobName" name="jobName" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">任务组名：</label>
+				<div class="col-sm-8">
+					<input id="jobGroup" name="jobGroup" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">方法名称：</label>
+				<div class="col-sm-8">
+					<input id="methodName" name="methodName" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">方法参数：</label>
+				<div class="col-sm-8">
+					<input id="methodParams" name="methodParams" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">cron执行表达式：</label>
+				<div class="col-sm-8">
+					<input id="cronExpression" name="cronExpression" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">执行策略：</label>
+				<div class="col-sm-8">
+					<label class="radio-box"> <input type="radio" name="misfirePolicy" value="1" th:checked="true"/> 立即执行 </label>
+					<label class="radio-box"> <input type="radio" name="misfirePolicy" value="2" /> 执行一次 </label>
+					<label class="radio-box"> <input type="radio" name="misfirePolicy" value="3" /> 放弃执行 </label>
+				</div>
+			</div>
+			<!--<div class="form-group">
+				<label class="col-sm-3 control-label">状态：</label>
+				<div class="col-sm-8">
+					<div class="radio-box">
+						<input type="radio" name="status" id="0" value="0" checked="checked">
+						<label for="0">启用</label>
+					</div>
+					<div class="radio-box">
+						<input type="radio" name="status" id="1" value="1" >
+						<label for="1">停用</label>
+					</div>
+				</div>
+			</div>-->
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">备注：</label>
+				<div class="col-sm-8">
+					<textarea id="remark" name="remark" class="form-control"></textarea>
+				</div>
+			</div>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "monitor/job"
+		$("#form-job-add").validate({
+			rules:{
+				jobName:{
+					required:true,
+				},
+				jobGroup:{
+				    required:true,
+				},
+				methodName:{
+				    required:true,
+				},
+				cronExpression:{
+				    required:true,
+					remote:{
+				        url:prefix+"checkCronExpressionIsValid",
+						type:"post",
+						dataType:"json",
+						data:{
+				            "cronExpression":function(){
+				                return $.common.trim($("#cronExpression").val());
+							}
+						},
+						dataFilter: function(data,type){
+				            return data;
+						}
+					}
+				}
+			},
+			message:{
+			    "cronExpression":{
+			        remote:"表达式不正确"
+				}
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/add", $('#form-job-add').serialize());
+	        }
+	    }
+	</script>
+</body>
+</html>

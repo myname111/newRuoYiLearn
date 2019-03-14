@@ -1,0 +1,60 @@
+#开发环境配置
+server:
+  port: 8889
+  servlet:
+    context-path: /
+
+#spring配置
+spring:
+  #模板引擎
+  thymeleaf:
+    #禁用缓存
+    cache: false
+  profiles:
+    active: druid
+  #配置json样式
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  #服务模块
+  devtools:
+    restart:
+      #热部署开关
+      enabled: true
+
+#mybaits配置
+mybatis:
+  type-aliases-package: com.ruoyi
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  config-location: classpath:mapper/mybatis-config.xml
+
+
+#PageHelper分页插件设置
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+
+
+#日志配置
+logging:
+  level:
+    com.ruoyi: debug
+    org.springframework: WARN
+    org.spring.springboog.dao: debug
+
+#代码生成
+gen:
+  #作者
+  author: ruoyi
+  #默认生成包路径
+  packageName: com.ruoyi.quartz
+  #自动去除表前缀,默认为true
+  autoRemovePre: true
+  #表前缀
+  tablePrefix: sys_
+#项目相关配置
+ruoyi:
+  version: 1.0
+  name: RuoYiLearn

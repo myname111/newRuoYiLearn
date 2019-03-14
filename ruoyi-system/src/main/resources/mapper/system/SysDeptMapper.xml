@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysDeptMapper">
+
+    <resultMap id="SysDeptResult" type="sysDept">
+        <id property="deptId" column="dept_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="ancestors" column="ancestors"/>
+        <result property="deptName"   column="dept_name"   />
+        <result property="orderNum"   column="order_num"   />
+        <result property="leader"     column="leader"      />
+        <result property="phone"      column="phone"       />
+        <result property="email"      column="email"       />
+        <result property="status"     column="status"      />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="parentName" column="parent_name" />
+        <result property="createBy"   column="create_by"   />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy"   column="update_by"   />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <sql id="selectDeptVo">
+        SELECT
+          d.dept_id,
+          d.parent_id,
+          d.ancestors,
+          d.dept_name,
+          d.order_num,
+          d.leader,
+          d.phone,
+          d.email,
+          d.status,
+          d.del_flag,
+          d.create_by,
+          d.create_time
+        FROM
+          sys_dept d
+    </sql>
+
+
+    <select id="selectDeptById" parameterType="Long" resultType="sysDept">
+        SELECT
+         d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.order_num, d.leader, d.phone, d.email, d.status,
+         (SELECT dept_name FROM sys_dept WHERE dept_id=d.parent_id) parent_name
+        FROM sys_dept d WHERE d.dept_id = #{deptId}
+    </select>
+
+
+    <select id="selectDeptList" parameterType="sysDept" resultMap="SysDeptResult">
+         <include refid="selectDeptVo"/>
+          WHERE d.del_flag='0'
+          <if test="parentId !=null and parentId !=0">
+              AND parent_id=#{parentId}
+          </if>
+          <if test="deptName !=null and deptName !=''">
+              AND dept_name LIKE concat('%',#{deptName},'%')
+          </if>
+          <if test="status !=null and status !=''">
+              AND status=#{status}
+          </if>
+          ORDER BY d.order_num
+    </select>
+
+
+    <select id="checkDeptNameUnique"   resultMap="SysDeptResult">
+        <include refid="selectDeptVo"/>
+        WHERE d.del_flag='0' AND d.dept_name=#{deptName} AND d.parent_id=#{parentId}
+    </select>
+
+    <insert id="insertDept" parameterType="sysDept">
+      INSERT INTO sys_dept(
+        <if test="deptId !=null and deptId !=0">dept_id,</if>
+        <if test="parentId != null and parentId != 0">parent_id,</if>
+        <if test="deptName != null and deptName != ''">dept_name,</if>
+        <if test="ancestors != null and ancestors != ''">ancestors,</if>
+        <if test="orderNum != null and orderNum != ''">order_num,</if>
+        <if test="leader != null and leader != ''">leader,</if>
+        <if test="phone != null and phone != ''">phone,</if>
+        <if test="email != null and email != ''">email,</if>
+        <if test="status != null">status,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        create_time
+        )
+      VALUES (
+            <if test="deptId != null and deptId != 0">#{deptId},</if>
+            <if test="parentId != null and parentId != 0">#{parentId},</if>
+            <if test="deptName != null and deptName != ''">#{deptName},</if>
+            <if test="ancestors != null and ancestors != ''">#{ancestors},</if>
+            <if test="orderNum != null and orderNum != ''">#{orderNum},</if>
+            <if test="leader != null and leader != ''">#{leader},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="email != null and email != ''">#{email},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            sysdate()
+        )
+    </insert>
+    <select id="selectChildrenDept" parameterType="sysDept" resultMap="SysDeptResult">
+        <include refid="selectDeptVo"/>
+        WHERE d.del_flag='0' AND (d.ancestors LIKE concat('%',',', #{deptId},',', '%') OR d.ancestors LIKE concat('%',',', #{deptId}, '%'))
+    </select>
+    <update id="updateDept" parameterType="sysDept">
+         UPDATE sys_dept
+         <set>
+             <if test="parentId != null and parentId != 0">parent_id = #{parentId},</if>
+             <if test="deptName != null and deptName != ''">dept_name = #{deptName},</if>
+             <if test="ancestors != null and ancestors != ''">ancestors = #{ancestors},</if>
+             <if test="orderNum != null and orderNum != ''">order_num = #{orderNum},</if>
+             <if test="leader != null">leader = #{leader},</if>
+             <if test="phone != null">phone = #{phone},</if>
+             <if test="email != null">email = #{email},</if>
+             <if test="status != null and status != ''">status = #{status},</if>
+             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+             update_time = sysdate()
+         </set>
+        WHERE dept_id=#{deptId}
+    </update>
+    <update id="updateDeptStatus" parameterType="sysDept">
+        UPDATE sys_dept
+        <set>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        WHERE dept_id IN (#{ancestors})
+    </update>
+    <update id="updateChildrenDept" parameterType="java.util.List">
+        UPDATE sys_dept SET ancestors =
+        <foreach collection="depts" close="end" index="index" item="dept" open="case dept_id" separator=" ">
+              WHEN #{dept.deptId} THEN #{dept.ancestors}
+        </foreach>
+        ,update_by =
+        <foreach collection="depts" close="end" index="index" item="dept" open="case dept_id" separator=" ">
+              WHEN #{dept.deptId} THEN #{dept.updateBy}
+        </foreach>
+        ,update_time=sysdate()
+        WHERE dept_id IN
+        <foreach collection="depts" separator="," open="(" item="dept" index="index" close=")">
+                #{dept.deptId}
+        </foreach>
+    </update>
+    <select id="selectDeptCount" parameterType="Long" resultType="Integer">
+        SELECT count(*) from sys_dept WHERE del_flag='0' AND parent_id=#{deptId}
+    </select>
+    <update id="deleteDept" parameterType="Long">
+        UPDATE sys_dept SET del_flag='2' WHERE dept_id=#{deptId}
+    </update>
+</mapper>

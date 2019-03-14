@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.gen.mapper.GenMapper">
+    <resultMap id="TableInfoResult" type="tableInfo">
+        <id column="table_name" property="tableName"/>
+        <result column="table_comment" property="tableComment"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    <resultMap id="ColumnInfoResult" type="columnInfo">
+        <id property="columnName" column="column_name"/>
+        <result property="dataType" column="data_type"/>
+        <result property="columnComment" column="column_comment"/>
+    </resultMap>
+    <sql id="selectGenVo">
+       SELECT TABLE_NAME ,table_comment,create_time,update_time from information_schema.tables
+    </sql>
+    <!--database()返回当前数据库-->
+    <select id="selectTableList" parameterType="tableInfo" resultMap="TableInfoResult">
+      <include refid="selectGenVo"/>
+       WHERE table_schema=(SELECT database())
+        <if test="tableName != null and tableName != ''">
+            AND table_name LIKE concat('%',#{tableName},'%')
+        </if>
+        <if test="tableComment != null and tableComment != ''">
+            AND table_comment LIKE concat('%',#{tableComment},'%')
+        </if>
+        <if test="params.beginTime != null and params.beginTime != ''">
+            AND date_format(create_time,'%y%m%d') <![CDATA[>=]]> date_format(#{params.beginTime},'%y%m%d')
+        </if>
+        <if test="params.endTime !=null and params.endTime !=''">
+            AND date_format(create_time,'%y%m%d') <![CDATA[<=]]> date_format(#{params.endTime},'%y%m%d')
+        </if>
+    </select>
+    <select id="selectTableByTableName" parameterType="String" resultMap="TableInfoResult">
+        <include refid="selectGenVo"/>
+        WHERE table_schema=(SELECT database()) AND TABLE_NAME = #{tableName}
+    </select>
+    <select id="selectColumnsByTableName" parameterType="String" resultMap="ColumnInfoResult">
+       SELECT COLUMN_NAME ,data_type,column_comment,extra FROM information_schema.columns
+       WHERE TABLE_NAME = #{tableName} AND table_schema= (SELECT database()) ORDER BY ordinal_position
+    </select>
+</mapper>
