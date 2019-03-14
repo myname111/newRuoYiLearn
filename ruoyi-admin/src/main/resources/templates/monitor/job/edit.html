@@ -39,18 +39,20 @@
 			<div class="form-group">	
 				<label class="col-sm-3 control-label">执行策略：</label>
 				<div class="col-sm-8">
-
+					<label class="radio-box"> <input type="radio" th:field="*{misfirePolicy}" name="misfirePolicy" value="1" /> 立即执行 </label>
+					<label class="radio-box"> <input type="radio" th:field="*{misfirePolicy}" name="misfirePolicy" value="2" /> 执行一次 </label>
+					<label class="radio-box"> <input type="radio" th:field="*{misfirePolicy}" name="misfirePolicy" value="3" /> 放弃执行 </label>
 				</div>
 			</div>
 			<div class="form-group">	
 				<label class="col-sm-3 control-label">状态（0正常 1暂停）：</label>
 				<div class="col-sm-8">
 					<div class="radio-box">
-						<input type="radio" name="status" id="0" value="0" checked="checked">
+						<input type="radio" name="status" id="0" value="0" th:field="*{status}">
 						<label for="0">正常</label>
 					</div>
 					<div class="radio-box">
-						<input type="radio" name="status" id="1" value="1" >
+						<input type="radio" name="status" id="1" value="1"  th:field="*{status}">
 						<label for="1">暂停</label>
 					</div>
 				</div>
@@ -65,14 +67,41 @@
     </div>
     <div th:include="include::footer"></div>
     <script type="text/javascript">
-		var prefix = ctx + "quartz/job";
-		$("#form-job-edit").validate({
-			rules:{
-				xxxx:{
-					required:true,
-				},
-			}
-		});
+		var prefix = ctx + "monitor/job";
+        $("#form-job-edit").validate({
+            rules:{
+                jobName:{
+                    required:true,
+                },
+                jobGroup:{
+                    required:true,
+                },
+                methodName:{
+                    required:true,
+                },
+                cronExpression:{
+                    required:true,
+                    remote: {
+                        url: prefix + "/checkCronExpressionIsValid",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            "cronExpression": function() {
+                                return $.common.trim($("#cronExpression").val());
+                            }
+                        },
+                        dataFilter: function(data, type) {
+                            return data;
+                        }
+                    }
+                },
+            },
+            messages: {
+                "cronExpression": {
+                    remote: "表达式不正确"
+                }
+            }
+        });
 		
 		function submitHandler() {
 	        if ($.validate.form()) {
