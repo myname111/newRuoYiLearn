@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BaseEntity implements Serializable{
+    private static final long serialVersionUID = 1L;
     private String searchValue;//搜索值
     private String createBy;//创建者
     private Date createTime;//创建时间

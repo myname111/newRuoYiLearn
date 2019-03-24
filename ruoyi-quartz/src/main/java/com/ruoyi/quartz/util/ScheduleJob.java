@@ -5,8 +5,8 @@ import com.ruoyi.common.constant.ScheduleConstants;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.bean.BeanUtils;
 import com.ruoyi.common.utils.spring.SpringUtils;
-import com.ruoyi.quartz.domain.Job;
-import com.ruoyi.quartz.domain.JobLog;
+import com.ruoyi.quartz.domain.SysJob;
+import com.ruoyi.quartz.domain.SysJobLog;
 import com.ruoyi.quartz.service.IJobLogService;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -29,10 +29,10 @@ public class ScheduleJob extends QuartzJobBean{
     private final static IJobLogService jobLogService = SpringUtils.getBean(IJobLogService.class);
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        Job job = new Job();
+        SysJob job = new SysJob();
         BeanUtils.copyBeanProp(job,jobExecutionContext.getMergedJobDataMap().get(ScheduleConstants.TASK_PROPERTIES));
         //定时任务日志记录
-        JobLog jobLog = new JobLog();
+        SysJobLog jobLog = new SysJobLog();
         jobLog.setJobName(job.getJobName());
         jobLog.setJobGroup(job.getJobGroup());
         jobLog.setMethodName(job.getMethodName());

@@ -1,51 +1,54 @@
 package com.ruoyi.quartz.domain;
 
-import com.ruoyi.common.constant.ScheduleConstants;
-import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.quartz.util.CronUtils;
+import com.ruoyi.common.annotation.Excel;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.base.BaseEntity;
-
-import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 定时任务调度表 sys_job
+ * 定时任务调度日志表 sys_job_log
  * 
  * @author ruoyi
- * @date 2019-03-10
+ * @date 2019-03-12
  */
-public class Job extends BaseEntity implements Serializable
+public class SysJobLog extends BaseEntity
 {
 	private static final long serialVersionUID = 1L;
 	
-	/** 任务ID */
-	private Long jobId;
+	/** 任务日志ID */
+	@Excel(name="日志序号")
+	private Long jobLogId;
 	/** 任务名称 */
+	@Excel(name="任务名称")
 	private String jobName;
 	/** 任务组名 */
+	@Excel(name="任务分组")
 	private String jobGroup;
 	/** 任务方法 */
+	@Excel(name="任务方法")
 	private String methodName;
 	/** 方法参数 */
+	@Excel(name="方法参数")
 	private String methodParams;
-	/** cron执行表达式 */
-	private String cronExpression;
-	/** 计划执行错误策略（1立即执行 2执行一次 3放弃执行） */
-	private String misfirePolicy= ScheduleConstants.MISFIRE_DEFAULT;
-	/** 状态（0正常 1暂停） */
+	/** 日志信息 */
+	@Excel(name="日志信息")
+	private String jobMessage;
+	/** 执行状态（0正常 1失败） */
+	@Excel(name="执行状态",readConvertExp = "0=正常,1=失败")
 	private String status;
+	/** 异常信息 */
+	@Excel(name="异常信息")
+	private String exceptionInfo;
 
-
-	public void setJobId(Long jobId)
+	public void setJobLogId(Long jobLogId)
 	{
-		this.jobId = jobId;
+		this.jobLogId = jobLogId;
 	}
 
-	public Long getJobId()
+	public Long getJobLogId()
 	{
-		return jobId;
+		return jobLogId;
 	}
 	public void setJobName(String jobName) 
 	{
@@ -83,23 +86,14 @@ public class Job extends BaseEntity implements Serializable
 	{
 		return methodParams;
 	}
-	public void setCronExpression(String cronExpression) 
+	public void setJobMessage(String jobMessage) 
 	{
-		this.cronExpression = cronExpression;
+		this.jobMessage = jobMessage;
 	}
 
-	public String getCronExpression() 
+	public String getJobMessage() 
 	{
-		return cronExpression;
-	}
-	public void setMisfirePolicy(String misfirePolicy) 
-	{
-		this.misfirePolicy = misfirePolicy;
-	}
-
-	public String getMisfirePolicy() 
-	{
-		return misfirePolicy;
+		return jobMessage;
 	}
 	public void setStatus(String status) 
 	{
@@ -110,32 +104,27 @@ public class Job extends BaseEntity implements Serializable
 	{
 		return status;
 	}
-
-	/**
-	 * 返回下一个执行时间
-	 * @return
-	 */
-	public Date getNextValidTime(){
-		if (StringUtils.isNotEmpty(cronExpression)){
-			return CronUtils.getNextExecution(cronExpression);
-		}
-		return null;
+	public void setExceptionInfo(String exceptionInfo) 
+	{
+		this.exceptionInfo = exceptionInfo;
 	}
+
+	public String getExceptionInfo() 
+	{
+		return exceptionInfo;
+	}
+
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("jobId", getJobId())
+            .append("jobLogId", getJobLogId())
             .append("jobName", getJobName())
             .append("jobGroup", getJobGroup())
             .append("methodName", getMethodName())
             .append("methodParams", getMethodParams())
-            .append("cronExpression", getCronExpression())
-            .append("misfirePolicy", getMisfirePolicy())
+            .append("jobMessage", getJobMessage())
             .append("status", getStatus())
-            .append("createBy", getCreateBy())
+            .append("exceptionInfo", getExceptionInfo())
             .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
             .toString();
     }
 }

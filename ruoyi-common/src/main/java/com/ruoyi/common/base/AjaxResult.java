@@ -11,7 +11,7 @@ public class AjaxResult extends HashMap<String,Object>{
         return AjaxResult.success("操作成功");
     }
 
-    private static AjaxResult success(String msg) {
+    public static AjaxResult success(String msg) {
         AjaxResult result = new AjaxResult();
         result.put("msg",msg);
         result.put("code",0);

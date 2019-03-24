@@ -2,13 +2,14 @@ package com.ruoyi.web.controller.monitor;
 
 import java.util.List;
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.ruoyi.common.utils.poi.ExcelUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 //import com.ruoyi.common.annotation.Log;
 //import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.quartz.domain.Job;
+import com.ruoyi.quartz.domain.SysJob;
 import com.ruoyi.quartz.service.IJobService;
 import com.ruoyi.framework.web.base.BaseController;
 import com.ruoyi.common.page.TableDataInfo;
@@ -43,10 +44,10 @@ public class SysJobController extends BaseController
 	//@RequiresPermissions("quartz:job:list")
 	@PostMapping("/list")
 	@ResponseBody
-	public TableDataInfo list(Job job)
+	public TableDataInfo list(SysJob job)
 	{
 		startPage();
-        List<Job> list = jobService.selectJobList(job);
+        List<SysJob> list = jobService.selectJobList(job);
 		return getDataTable(list);
 	}
 	
@@ -57,12 +58,11 @@ public class SysJobController extends BaseController
 	//@RequiresPermissions("quartz:job:export")
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(Job job)
+    public AjaxResult export(SysJob job)
     {
-    	List<Job> list = jobService.selectJobList(job);
-       // ExcelUtil<Job> util = new ExcelUtil<Job>(Job.class);
-        //return util.exportExcel(list, "job");
-		return success();
+    	List<SysJob> list = jobService.selectJobList(job);
+        ExcelUtils<SysJob> util = new ExcelUtils<SysJob>(SysJob.class);
+        return util.exportExcel(list, "定时任务");
     }
 	
 	/**
@@ -81,7 +81,7 @@ public class SysJobController extends BaseController
 	//@Log(title = "定时任务调度", businessType = BusinessType.INSERT)
 	@PostMapping("/add")
 	@ResponseBody
-	public AjaxResult addSave(Job job)
+	public AjaxResult addSave(SysJob job)
 	{		
 		return toAjax(jobService.insertJobCron(job));
 	}
@@ -90,9 +90,9 @@ public class SysJobController extends BaseController
 	 * 修改定时任务调度
 	 */
 	@GetMapping("/edit/{jobId}")
-	public String edit(@PathVariable("jobId") Integer jobId, ModelMap mmap)
+	public String edit(@PathVariable("jobId") Long jobId, ModelMap mmap)
 	{
-		Job job = jobService.selectJobById(jobId);
+		SysJob job = jobService.selectJobById(jobId);
 		mmap.put("job", job);
 	    return prefix + "/edit";
 	}
@@ -104,9 +104,9 @@ public class SysJobController extends BaseController
 	//@Log(title = "定时任务调度", businessType = BusinessType.UPDATE)
 	@PostMapping("/edit")
 	@ResponseBody
-	public AjaxResult editSave(Job job)
+	public AjaxResult editSave(SysJob job)
 	{		
-		return toAjax(jobService.updateJob(job));
+		return toAjax(jobService.updateJobCron(job));
 	}
 	
 	/**
@@ -118,7 +118,14 @@ public class SysJobController extends BaseController
 	@ResponseBody
 	public AjaxResult remove(String ids)
 	{		
-		return toAjax(jobService.deleteJobByIds(ids));
+        try{
+			jobService.deleteJobByIds(ids);
+			return success();
+		}catch(Exception e){
+        	e.printStackTrace();
+        	return error(e.getMessage());
+		}
+
 	}
 
 	/**
@@ -128,7 +135,44 @@ public class SysJobController extends BaseController
 	 */
 	@PostMapping("/checkCronExpressionIsValid")
 	@ResponseBody
-	public boolean checkCronExpressionIsValid(Job job){
+	public boolean checkCronExpressionIsValid(SysJob job){
        return jobService.checkCronExpressionIsValid(job.getCronExpression());
 	}
+
+	/**
+	 * 修改定时任务状态
+	 * @param job
+	 * @return
+	 */
+	@PostMapping("/changeStatus")
+	@ResponseBody
+	public AjaxResult changeStatus(SysJob job){
+          return toAjax(jobService.changeStatus(job));
+	}
+
+	/**
+	 * 任务详情
+	 * @param jobId
+	 * @param map
+	 * @return
+	 */
+	@GetMapping("/detail/{jobId}")
+	public String detail(@PathVariable("jobId") Long jobId, ModelMap map){
+		SysJob job = jobService.selectJobById(jobId);
+		map.put("name","job");
+        map.put("job",job);
+        return prefix+"/detail";
+	}
+
+	/**
+	 * 运行定时任务
+	 * @param sysJob
+	 * @return
+	 */
+	@PostMapping("/run")
+	@ResponseBody
+	public AjaxResult run(SysJob sysJob){
+		return toAjax(jobService.run(sysJob));
+	}
+
 }

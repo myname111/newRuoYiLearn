@@ -64,6 +64,7 @@
                 url: prefix + "/list",
                 createUrl: prefix + "/add",
                 updateUrl: prefix + "/edit/{id}",
+				detailUrl: prefix+"/detail/{id}",
                 removeUrl: prefix + "/remove",
 				exportUrl: prefix + "/export",
                 modalName: "任务",
@@ -153,6 +154,23 @@
             $.modal.confirm("确认要停用任务吗?",function(){
                 $.operate.post(prefix+"/changeStatus",{"jobId":jobId,"status":1});
             })
+		}
+
+        /**
+		 * 立即执行一次
+         */
+		function run(jobId){
+			$.modal.confirm("确认要立即执行任务吗?",function(){
+                 $.operate.post(prefix+"/run",{"jobId":jobId});
+			});
+		}
+
+        /**
+		 * 调度日志查询
+         */
+		function jobLog(){
+		   var uri=ctx+"monitor/jobLog";
+           createMenuItem(uri,"调度日志");
 		}
     </script>
 </body>

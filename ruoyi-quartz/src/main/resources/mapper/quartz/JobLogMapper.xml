@@ -4,7 +4,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.quartz.mapper.JobLogMapper">
     
-    <resultMap type="JobLog" id="JobLogResult">
+    <resultMap type="sysJobLog" id="JobLogResult">
         <result property="jobLogId"    column="job_log_id"    />
         <result property="jobName"    column="job_name"    />
         <result property="jobGroup"    column="job_group"    />
@@ -20,27 +20,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select job_log_id, job_name, job_group, method_name, method_params, job_message, status, exception_info, create_time from sys_job_log
     </sql>
 	
-    <select id="selectJobLogList" parameterType="JobLog" resultMap="JobLogResult">
+    <select id="selectJobLogList" parameterType="sysJobLog" resultMap="JobLogResult">
         <include refid="selectJobLogVo"/>
-        <where>  
-            <if test="jobLogId != null "> and job_log_id = #{jobLogId}</if>
-             <if test="jobName != null  and jobName != '' "> and job_name = #{jobName}</if>
-             <if test="jobGroup != null  and jobGroup != '' "> and job_group = #{jobGroup}</if>
-             <if test="methodName != null  and methodName != '' "> and method_name = #{methodName}</if>
-             <if test="methodParams != null  and methodParams != '' "> and method_params = #{methodParams}</if>
-             <if test="jobMessage != null  and jobMessage != '' "> and job_message = #{jobMessage}</if>
+        <where>
+             <if test="jobName != null  and jobName != '' "> and job_name LIKE concat('%',#{jobName},'%')</if>
+             <if test="methodName != null  and methodName != '' "> and method_name LIKE concat('%',#{methodName},'%')</if>
              <if test="status != null  and status != '' "> and status = #{status}</if>
-             <if test="exceptionInfo != null  and exceptionInfo != '' "> and exception_info = #{exceptionInfo}</if>
-             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="params.beginTime != null and params.beginTime !=''"> and date_format(create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')</if>
+             <if test="params.endTime != null and params.endTime !=''"> and date_format(create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')</if>
          </where>
     </select>
     
-    <select id="selectJobLogById" parameterType="Integer" resultMap="JobLogResult">
+    <select id="selectJobLogById" parameterType="Long" resultMap="JobLogResult">
         <include refid="selectJobLogVo"/>
         where job_log_id = #{jobLogId}
     </select>
         
-    <insert id="insertJobLog" parameterType="JobLog" useGeneratedKeys="true" keyProperty="jobLogId">
+    <insert id="insertJobLog" parameterType="sysJobLog" useGeneratedKeys="true" keyProperty="jobLogId">
         insert into sys_job_log
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="jobName != null  and jobName != ''  ">job_name,</if>
@@ -64,7 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 	 
-    <update id="updateJobLog" parameterType="JobLog">
+    <update id="updateJobLog" parameterType="sysJobLog">
         update sys_job_log
         <trim prefix="SET" suffixOverrides=",">
             <if test="jobName != null  and jobName != ''  ">job_name = #{jobName},</if>
@@ -79,15 +75,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where job_log_id = #{jobLogId}
     </update>
 
-	<delete id="deleteJobLogById" parameterType="Integer">
+	<delete id="deleteJobLogById" parameterType="Long">
         delete from sys_job_log where job_log_id = #{jobLogId}
     </delete>
 	
-    <delete id="deleteJobLogByIds" parameterType="String">
+    <delete id="deleteJobLogByIds" parameterType="Long">
         delete from sys_job_log where job_log_id in 
         <foreach item="jobLogId" collection="array" open="(" separator="," close=")">
             #{jobLogId}
         </foreach>
     </delete>
-    
+    <update id="cleanJobLog">
+      turncate TABLE sys_job_log
+    </update>
 </mapper>

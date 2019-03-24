@@ -49,9 +49,9 @@ gen:
   #作者
   author: ruoyi
   #默认生成包路径
-  packageName: com.ruoyi.quartz
+  packageName: com.ruoyi.system
   #自动去除表前缀,默认为true
-  autoRemovePre: true
+  autoRemovePre: false
   #表前缀
   tablePrefix: sys_
 #项目相关配置

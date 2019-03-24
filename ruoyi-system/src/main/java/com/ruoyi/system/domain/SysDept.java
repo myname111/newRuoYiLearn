@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class SysDept extends BaseEntity{
+    private static final long serialVersionUID = 1L;
     private Long deptId;//部门id
     private Long parentId;//父部门id
     private String deptName;//部门名称

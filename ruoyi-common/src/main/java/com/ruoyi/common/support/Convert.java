@@ -2,7 +2,9 @@ package com.ruoyi.common.support;
 
 import com.ruoyi.common.utils.StringUtils;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import sun.util.resources.ga.LocaleNames_ga;
 
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
@@ -151,5 +153,43 @@ public class Convert {
             charset=Charset.defaultCharset();
         }
         return charset.decode(byteBuffer).toString();
+    }
+
+    public static Long[] toLongArray(String str) {
+        return toLongArray(",",str);
+    }
+
+    public static Long[] toLongArray(String split, String str) {
+        if (StringUtils.isEmpty(str)){
+            return new Long[]{};
+        }
+        String[] arr = str.split(split);
+        final Long longArr[] = new Long[arr.length];
+        for (int i=0;i<arr.length;i++) {
+           final Long v=toLong(arr[i],null);
+           longArr[i]=v;
+        }
+        return longArr;
+    }
+
+    public static Long toLong(Object value, Long defaultValue) {
+        if (value==null){
+            return defaultValue;
+        }
+        if (value instanceof Long){
+            return (Long)value;
+        }
+        if (value instanceof Number){
+            return ((Number)value).longValue();
+        }
+        final String str = toStr(value, null);
+        if (StringUtils.isEmpty(str)){
+            return defaultValue;
+        }
+        try{
+            return new BigDecimal(str.trim()).longValue();
+        }catch(Exception e){
+            return defaultValue;
+        }
     }
 }

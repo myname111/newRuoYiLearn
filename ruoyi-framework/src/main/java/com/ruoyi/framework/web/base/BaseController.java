@@ -40,6 +40,9 @@ public class BaseController {
     protected AjaxResult error(){
         return AjaxResult.error();
     }
+    protected  AjaxResult error(String msg){
+        return AjaxResult.error(msg);
+    }
     protected AjaxResult error(int code,String msg){
         return AjaxResult.error(code,msg);
     }

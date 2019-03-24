@@ -60,7 +60,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils{
      * @return
      */
     public static <T> T nvl(T value, T defaultValue) {
-        return value!=null?value:defaultValue;
+        return value!=null&&!value.toString().equals(EMPTY)?value:defaultValue;
     }
     /**
      * 驼峰命名转下划线

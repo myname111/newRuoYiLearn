@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.quartz.mapper.JobLogMapper;
-import com.ruoyi.quartz.domain.JobLog;
+import com.ruoyi.quartz.domain.SysJobLog;
 import com.ruoyi.quartz.service.IJobLogService;
 import com.ruoyi.common.support.Convert;
 
@@ -27,7 +27,7 @@ public class JobLogServiceImpl implements IJobLogService
      * @return 定时任务调度日志信息
      */
     @Override
-	public JobLog selectJobLogById(Integer jobLogId)
+	public SysJobLog selectJobLogById(Long jobLogId)
 	{
 	    return jobLogMapper.selectJobLogById(jobLogId);
 	}
@@ -39,7 +39,7 @@ public class JobLogServiceImpl implements IJobLogService
      * @return 定时任务调度日志集合
      */
 	@Override
-	public List<JobLog> selectJobLogList(JobLog jobLog)
+	public List<SysJobLog> selectJobLogList(SysJobLog jobLog)
 	{
 	    return jobLogMapper.selectJobLogList(jobLog);
 	}
@@ -51,7 +51,7 @@ public class JobLogServiceImpl implements IJobLogService
      * @return 结果
      */
 	@Override
-	public int insertJobLog(JobLog jobLog)
+	public int insertJobLog(SysJobLog jobLog)
 	{
 	    return jobLogMapper.insertJobLog(jobLog);
 	}
@@ -63,7 +63,7 @@ public class JobLogServiceImpl implements IJobLogService
      * @return 结果
      */
 	@Override
-	public int updateJobLog(JobLog jobLog)
+	public int updateJobLog(SysJobLog jobLog)
 	{
 	    return jobLogMapper.updateJobLog(jobLog);
 	}
@@ -77,7 +77,12 @@ public class JobLogServiceImpl implements IJobLogService
 	@Override
 	public int deleteJobLogByIds(String ids)
 	{
-		return jobLogMapper.deleteJobLogByIds(Convert.toStrArray(ids));
+		return jobLogMapper.deleteJobLogByIds(Convert.toLongArray(ids));
 	}
-	
+
+	@Override
+	public void cleanJobLog() {
+		jobLogMapper.cleanJobLog();
+	}
+
 }

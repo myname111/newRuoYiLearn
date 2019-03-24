@@ -2,6 +2,7 @@ package com.ruoyi.web.controller.monitor;
 
 import java.util.List;
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.ruoyi.common.utils.poi.ExcelUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 //import com.ruoyi.common.annotation.Log;
 //import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.quartz.domain.JobLog;
+import com.ruoyi.quartz.domain.SysJobLog;
 import com.ruoyi.quartz.service.IJobLogService;
 import com.ruoyi.framework.web.base.BaseController;
 import com.ruoyi.common.page.TableDataInfo;
@@ -29,7 +30,7 @@ import com.ruoyi.common.base.AjaxResult;
 @RequestMapping("/monitor/jobLog")
 public class JobLogController extends BaseController
 {
-    private String prefix = "quartz/jobLog";
+    private String prefix = "monitor/job";
 	
 	@Autowired
 	private IJobLogService jobLogService;
@@ -47,10 +48,10 @@ public class JobLogController extends BaseController
 	//@RequiresPermissions("quartz:jobLog:list")
 	@PostMapping("/list")
 	@ResponseBody
-	public TableDataInfo list(JobLog jobLog)
+	public TableDataInfo list(SysJobLog jobLog)
 	{
 		startPage();
-        List<JobLog> list = jobLogService.selectJobLogList(jobLog);
+        List<SysJobLog> list = jobLogService.selectJobLogList(jobLog);
 		return getDataTable(list);
 	}
 	
@@ -61,12 +62,11 @@ public class JobLogController extends BaseController
 	//@RequiresPermissions("quartz:jobLog:export")
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(JobLog jobLog)
+    public AjaxResult export(SysJobLog jobLog)
     {
-    	List<JobLog> list = jobLogService.selectJobLogList(jobLog);
-       // ExcelUtil<JobLog> util = new ExcelUtil<JobLog>(JobLog.class);
-        //return util.exportExcel(list, "jobLog");
-		return success();
+    	List<SysJobLog> list = jobLogService.selectJobLogList(jobLog);
+        ExcelUtils<SysJobLog> util = new ExcelUtils<>(SysJobLog.class);
+        return util.exportExcel(list, "定时任务日志");
     }
 	
 	/**
@@ -85,7 +85,7 @@ public class JobLogController extends BaseController
 	//@Log(title = "定时任务调度日志", businessType = BusinessType.INSERT)
 	@PostMapping("/add")
 	@ResponseBody
-	public AjaxResult addSave(JobLog jobLog)
+	public AjaxResult addSave(SysJobLog jobLog)
 	{		
 		return toAjax(jobLogService.insertJobLog(jobLog));
 	}
@@ -94,9 +94,9 @@ public class JobLogController extends BaseController
 	 * 修改定时任务调度日志
 	 */
 	@GetMapping("/edit/{jobLogId}")
-	public String edit(@PathVariable("jobLogId") Integer jobLogId, ModelMap mmap)
+	public String edit(@PathVariable("jobLogId") Long jobLogId, ModelMap mmap)
 	{
-		JobLog jobLog = jobLogService.selectJobLogById(jobLogId);
+		SysJobLog jobLog = jobLogService.selectJobLogById(jobLogId);
 		mmap.put("jobLog", jobLog);
 	    return prefix + "/edit";
 	}
@@ -108,7 +108,7 @@ public class JobLogController extends BaseController
 	//@Log(title = "定时任务调度日志", businessType = BusinessType.UPDATE)
 	@PostMapping("/edit")
 	@ResponseBody
-	public AjaxResult editSave(JobLog jobLog)
+	public AjaxResult editSave(SysJobLog jobLog)
 	{		
 		return toAjax(jobLogService.updateJobLog(jobLog));
 	}
@@ -124,5 +124,27 @@ public class JobLogController extends BaseController
 	{		
 		return toAjax(jobLogService.deleteJobLogByIds(ids));
 	}
-	
+
+	/**
+	 * 日志详情
+	 * @param logId
+	 * @param map
+	 * @return
+	 */
+	@GetMapping("/detail/{logId}")
+	public String detail(@PathVariable("logId")Long logId,ModelMap map){
+		SysJobLog sysJobLog = jobLogService.selectJobLogById(logId);
+		map.put("name","jobLog");
+		map.put("jobLog",sysJobLog);
+		return prefix+"/detail";
+	}
+	/**
+	 * 清空日志
+	 */
+	@PostMapping("/clean")
+	@ResponseBody
+	public AjaxResult clean(){
+        jobLogService.cleanJobLog();
+		return success();
+	}
 }

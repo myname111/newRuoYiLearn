@@ -32,7 +32,8 @@ public class Global {
             Map<?,?> yamlMap = null;
             try {
                 yamlMap = YamlUtil.loadYaml(NAME);
-                value = String.valueOf(YamlUtil.getProperty(yamlMap,key));
+                Object obj = YamlUtil.getProperty(yamlMap,key);
+                value = obj!=null?String.valueOf(obj):null;
                 map.put(key,value!=null?value: StringUtils.EMPTY);
             } catch (FileNotFoundException e) {
                log.error("获取全剧配置异常 {}",key);
@@ -87,5 +88,13 @@ public class Global {
      */
     public static String getVersion(){
         return StringUtils.nvl(getConfig("ruoyi.version"),"1.0");
+    }
+
+    /**
+     * 文件下载路径
+     * @return
+     */
+    public static String getDownloadPath() {
+        return StringUtils.nvl(getConfig("ruoyi.profile"),"D:/profile/download/");
     }
 }

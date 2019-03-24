@@ -9,7 +9,7 @@ import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.quartz.mapper.JobMapper;
-import com.ruoyi.quartz.domain.Job;
+import com.ruoyi.quartz.domain.SysJob;
 import com.ruoyi.quartz.service.IJobService;
 import com.ruoyi.common.support.Convert;
 
@@ -22,6 +22,8 @@ import com.ruoyi.common.support.Convert;
 @Service
 public class JobServiceImpl implements IJobService 
 {
+
+
 	@Autowired
 	private JobMapper jobMapper;
     @Autowired
@@ -33,7 +35,7 @@ public class JobServiceImpl implements IJobService
      * @return 定时任务调度信息
      */
     @Override
-	public Job selectJobById(Integer jobId)
+	public SysJob selectJobById(Long jobId)
 	{
 	    return jobMapper.selectJobById(jobId);
 	}
@@ -45,7 +47,7 @@ public class JobServiceImpl implements IJobService
      * @return 定时任务调度集合
      */
 	@Override
-	public List<Job> selectJobList(Job job)
+	public List<SysJob> selectJobList(SysJob job)
 	{
 	    return jobMapper.selectJobList(job);
 	}
@@ -57,7 +59,7 @@ public class JobServiceImpl implements IJobService
      * @return 结果
      */
 	@Override
-	public int insertJob(Job job)
+	public int insertJob(SysJob job)
 	{
 	    return jobMapper.insertJob(job);
 	}
@@ -69,7 +71,7 @@ public class JobServiceImpl implements IJobService
      * @return 结果
      */
 	@Override
-	public int updateJob(Job job)
+	public int updateJob(SysJob job)
 	{
 	    return jobMapper.updateJob(job);
 	}
@@ -81,11 +83,37 @@ public class JobServiceImpl implements IJobService
      * @return 结果
      */
 	@Override
-	public int deleteJobByIds(String ids)
+	public void  deleteJobByIds(String ids)
 	{
-		return jobMapper.deleteJobByIds(Convert.toStrArray(ids));
+		Long[] idarr = Convert.toLongArray(ids);
+		if (idarr!=null){
+			for (Long id: idarr) {
+				SysJob sysJob = jobMapper.selectJobById(id);
+				deleteJob(sysJob);
+			}
+		}
+
 	}
 
+	/**
+	 * 删除定时任务
+	 * @param sysJob
+	 * @return
+	 */
+	@Override
+	public  int deleteJob(SysJob sysJob) {
+		int rows = jobMapper.deleteJobById(sysJob.getJobId());
+		if (rows>0){
+			ScheduleUtils.deleteScheduleJob(scheduler,sysJob.getJobId());
+		}
+		return rows;
+	}
+
+	/**
+	 * 检查表达式的正确性
+	 * @param cronExpression
+	 * @return
+	 */
 	@Override
 	public boolean checkCronExpressionIsValid(String cronExpression) {
 		return CronUtils.isValid(cronExpression);
@@ -97,7 +125,7 @@ public class JobServiceImpl implements IJobService
 	 * @return
 	 */
 	@Override
-	public int insertJobCron(Job job) {
+	public int insertJobCron(SysJob job) {
 		job.setStatus(ScheduleConstants.Status.PAUSE.getValue());
 		int rows = jobMapper.insertJob(job);
 		if (rows>0){
@@ -106,4 +134,74 @@ public class JobServiceImpl implements IJobService
 		return rows;
 	}
 
+	/**
+	 * 更新任务
+	 * @param job
+	 * @return
+	 */
+	@Override
+	public int updateJobCron(SysJob job) {
+		int row = jobMapper.updateJob(job);
+		if (row>0){
+			ScheduleUtils.updateScheduleJob(scheduler,job);
+		}
+		return row;
+	}
+
+	/**
+	 * 修改任务状态
+	 * @param job
+	 * @return
+	 */
+	@Override
+	public int changeStatus(SysJob job) {
+		String status = job.getStatus();
+		int rows = 0;
+		if (ScheduleConstants.Status.NORMAL.getValue().equals(status)){
+			rows=resumeJob(job);
+		}else if (ScheduleConstants.Status.PAUSE.getValue().equals(status)){
+			rows = pauseJob(job);
+		}
+		return rows;
+	}
+
+	/**
+	 * 暂停定时任务
+	 * @param job
+	 * @return
+	 */
+	@Override
+	public int pauseJob(SysJob job) {
+		job.setStatus(ScheduleConstants.Status.PAUSE.getValue());
+		int rows = jobMapper.updateJob(job);
+		if (rows>0){
+			ScheduleUtils.pauseJob(scheduler,job.getJobId());
+		}
+		return rows;
+	}
+
+	/**
+	 * 立即运行任务
+	 * @param sysJob
+	 * @return
+	 */
+	@Override
+	public int run(SysJob sysJob) {
+		return ScheduleUtils.run(scheduler,selectJobById(sysJob.getJobId()));
+	}
+
+	/**
+	 * 重启定时任务
+	 * @param job
+	 * @return
+	 */
+    @Override
+	public int resumeJob(SysJob job){
+		job.setStatus(ScheduleConstants.Status.NORMAL.getValue());
+		int rows = jobMapper.updateJob(job);
+		if (rows>0){
+			ScheduleUtils.remuseJob(scheduler,job.getJobId());
+		}
+		return rows;
+	}
 }

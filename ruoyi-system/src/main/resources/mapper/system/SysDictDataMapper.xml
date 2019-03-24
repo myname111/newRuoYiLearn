@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysDictDataMapper">
+    
+    <resultMap type="SysDictData" id="SysDictDataResult">
+        <result property="dictCode"    column="dict_code"    />
+        <result property="dictSort"    column="dict_sort"    />
+        <result property="dictLabel"    column="dict_label"    />
+        <result property="dictValue"    column="dict_value"    />
+        <result property="dictType"    column="dict_type"    />
+        <result property="cssClass"    column="css_class"    />
+        <result property="listClass"    column="list_class"    />
+        <result property="isDefault"    column="is_default"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+	
+	<sql id="selectSysDictDataVo">
+        select dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, update_by, update_time, remark from sys_dict_data
+    </sql>
+	
+    <select id="selectSysDictDataList" parameterType="SysDictData" resultMap="SysDictDataResult">
+        <include refid="selectSysDictDataVo"/>
+        <where>  
+            <if test="dictCode != null "> and dict_code = #{dictCode}</if>
+             <if test="dictSort != null "> and dict_sort = #{dictSort}</if>
+             <if test="dictLabel != null  and dictLabel != '' "> and dict_label = #{dictLabel}</if>
+             <if test="dictValue != null  and dictValue != '' "> and dict_value = #{dictValue}</if>
+             <if test="dictType != null  and dictType != '' "> and dict_type = #{dictType}</if>
+             <if test="cssClass != null  and cssClass != '' "> and css_class = #{cssClass}</if>
+             <if test="listClass != null  and listClass != '' "> and list_class = #{listClass}</if>
+             <if test="isDefault != null  and isDefault != '' "> and is_default = #{isDefault}</if>
+             <if test="status != null  and status != '' "> and status = #{status}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>
+             <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+         </where>
+    </select>
+    
+    <select id="selectSysDictDataById" parameterType="Integer" resultMap="SysDictDataResult">
+        <include refid="selectSysDictDataVo"/>
+        where dict_code = #{dictCode}
+    </select>
+        
+    <insert id="insertSysDictData" parameterType="SysDictData" useGeneratedKeys="true" keyProperty="dictCode">
+        insert into sys_dict_data
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="dictSort != null  ">dict_sort,</if>
+			<if test="dictLabel != null  and dictLabel != ''  ">dict_label,</if>
+			<if test="dictValue != null  and dictValue != ''  ">dict_value,</if>
+			<if test="dictType != null  and dictType != ''  ">dict_type,</if>
+			<if test="cssClass != null  and cssClass != ''  ">css_class,</if>
+			<if test="listClass != null  and listClass != ''  ">list_class,</if>
+			<if test="isDefault != null  and isDefault != ''  ">is_default,</if>
+			<if test="status != null  and status != ''  ">status,</if>
+			<if test="createBy != null  and createBy != ''  ">create_by,</if>
+			<if test="createTime != null  ">create_time,</if>
+			<if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+			<if test="updateTime != null  ">update_time,</if>
+			<if test="remark != null  and remark != ''  ">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="dictSort != null  ">#{dictSort},</if>
+			<if test="dictLabel != null  and dictLabel != ''  ">#{dictLabel},</if>
+			<if test="dictValue != null  and dictValue != ''  ">#{dictValue},</if>
+			<if test="dictType != null  and dictType != ''  ">#{dictType},</if>
+			<if test="cssClass != null  and cssClass != ''  ">#{cssClass},</if>
+			<if test="listClass != null  and listClass != ''  ">#{listClass},</if>
+			<if test="isDefault != null  and isDefault != ''  ">#{isDefault},</if>
+			<if test="status != null  and status != ''  ">#{status},</if>
+			<if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+			<if test="createTime != null  ">#{createTime},</if>
+			<if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+			<if test="updateTime != null  ">#{updateTime},</if>
+			<if test="remark != null  and remark != ''  ">#{remark},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateSysDictData" parameterType="SysDictData">
+        update sys_dict_data
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="dictSort != null  ">dict_sort = #{dictSort},</if>
+            <if test="dictLabel != null  and dictLabel != ''  ">dict_label = #{dictLabel},</if>
+            <if test="dictValue != null  and dictValue != ''  ">dict_value = #{dictValue},</if>
+            <if test="dictType != null  and dictType != ''  ">dict_type = #{dictType},</if>
+            <if test="cssClass != null  and cssClass != ''  ">css_class = #{cssClass},</if>
+            <if test="listClass != null  and listClass != ''  ">list_class = #{listClass},</if>
+            <if test="isDefault != null  and isDefault != ''  ">is_default = #{isDefault},</if>
+            <if test="status != null  and status != ''  ">status = #{status},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+        </trim>
+        where dict_code = #{dictCode}
+    </update>
+
+	<delete id="deleteSysDictDataById" parameterType="Integer">
+        delete from sys_dict_data where dict_code = #{dictCode}
+    </delete>
+	
+    <delete id="deleteSysDictDataByIds" parameterType="String">
+        delete from sys_dict_data where dict_code in 
+        <foreach item="dictCode" collection="array" open="(" separator="," close=")">
+            #{dictCode}
+        </foreach>
+    </delete>
+    
+</mapper>
